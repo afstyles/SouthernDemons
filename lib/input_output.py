@@ -99,3 +99,23 @@ def save_vent_file(df_vent, out_dir):
 def load_vent_file(out_dir):
     df_vent = dd.read_csv(out_dir + "/df_vent.csv", header=0 )
     return df_vent
+
+def save_gyre_stats(ny_vent_gyre, nmo_vent_gyre, ndoy_vent_gyre, out_dir):
+    dd.to_csv(ny_vent_gyre,out_dir + "/ny_vent_gyre.csv" , single_file=True, mode="wt", index=True)
+    dd.to_csv(nmo_vent_gyre, out_dir + "/nmo_vent_gyre.csv", single_file=True, mode="wt", index=True)
+    dd.to_csv(ndoy_vent_gyre, out_dir + "/ndoy_vent_gyre.csv", single_file=True, mode="wt", index=True)
+    return
+
+def save_subdomain_stats(ny_vent, nmo_vent, ndoy_vent, out_dir):
+    dd.to_csv(ny_vent,out_dir + "/ny_vent.csv" , single_file=True, mode="wt", index=True)
+    dd.to_csv(nmo_vent, out_dir + "/nmo_vent.csv", single_file=True, mode="wt", index=True)
+    dd.to_csv(ndoy_vent, out_dir + "/ndoy_vent.csv", single_file=True, mode="wt", index=True)
+    return
+
+def save_xy_vent(xy_vent_ini, xy_vent_out, out_dir):
+    dd.to_csv(xy_vent_ini, out_dir + "xy_vent_ini.csv", single_file=True, mode="wt", index=True)
+    dd.to_csv(xy_vent_out, out_dir + "xy_vent_out.csv", single_file=True, mode="wt", index=True)
+    return
+
+
+
