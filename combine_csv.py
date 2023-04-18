@@ -16,9 +16,9 @@ import dask.dataframe as dd
 
 datadir = os.path.abspath(sys.argv[1])
 
-ini_file_list = sorted(glob.glob(datadir + '/*_ini.csv'))
-out_file_list = sorted(glob.glob(datadir + '/*_out.csv'))
-run_file_list = sorted(glob.glob(datadir + '/*_run.csv'))
+ini_file_list = sorted(glob.glob(datadir + '/*/*_ini.csv'))
+out_file_list = sorted(glob.glob(datadir + '/*/*_out.csv'))
+run_file_list = sorted(glob.glob(datadir + '/*/*_run.csv'))
 
 n_ini = len(ini_file_list)
 n_out = len(out_file_list)
