@@ -128,13 +128,16 @@ def load_combined_out_file(out_dir, blocksize=1e9):
     return df_out
 
 def save_vent_file(df_vent, out_dir):
-    # dd.to_csv(df_vent, out_dir + "/df_vent.csv", single_file=True, mode="wt", index=False)
     dd.to_parquet(df_vent, out_dir + "/df_vent.parquet", write_index=False, overwrite=True, write_metadata_file=True )
     return
 
-def load_vent_file(out_dir, blocksize=1e9):
+def load_vent_file(out_dir, blocksize=1e9, timestring=None):
     # df_vent = dd.read_csv(out_dir + "/df_vent.parquet", header=0 , blocksize=blocksize)
-    df_vent = dd.read_parquet(out_dir + "/df_vent.parquet", chunksize=blocksize)
+    
+    if timestring is None:
+        df_vent = dd.read_parquet(out_dir + "/df_vent.parquet", chunksize=blocksize)
+    else:
+        df_vent = dd.read_parquet(out_dir + f"/df_vent.backup.{timestring}.parquet", chunksize=blocksize)
     return df_vent
 
 def save_gyre_stats(sub_stats, out_dir):
@@ -168,18 +171,21 @@ def save_subdomain_stats(sub_stats, out_dir, label="nolabel"):
     dd.to_parquet(sub_stats[1], f"{out_dir}/ny_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
     dd.to_parquet(sub_stats[2], f"{out_dir}/nmo_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
     dd.to_parquet(sub_stats[3], f"{out_dir}/ndoy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[4], f"{out_dir}/ndense_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
     
     #Trajector volume (at seeding) statistics
-    dd.to_parquet(sub_stats[4], f"{out_dir}/voliage_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
-    dd.to_parquet(sub_stats[5], f"{out_dir}/voliy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
-    dd.to_parquet(sub_stats[6], f"{out_dir}/volimo_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
-    dd.to_parquet(sub_stats[7], f"{out_dir}/volidoy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[5], f"{out_dir}/voliage_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[6], f"{out_dir}/voliy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[7], f"{out_dir}/volimo_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[8], f"{out_dir}/volidoy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[9], f"{out_dir}/volindense_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
 
     #Trajector volume (at ventilation) statistics
-    dd.to_parquet(sub_stats[8], f"{out_dir}/voloage_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
-    dd.to_parquet(sub_stats[9], f"{out_dir}/voloy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
-    dd.to_parquet(sub_stats[10], f"{out_dir}/volomo_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
-    dd.to_parquet(sub_stats[11], f"{out_dir}/volodoy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[10], f"{out_dir}/voloage_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[11], f"{out_dir}/voloy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[12], f"{out_dir}/volomo_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[13], f"{out_dir}/volodoy_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
+    dd.to_parquet(sub_stats[14], f"{out_dir}/volondense_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True  )
 
     return
 
@@ -221,6 +227,71 @@ def save_xrho_vent(xrho_n_vent_ini, xrho_vol_vent_ini, out_dir, label="nolabel")
 
     dd.to_parquet(dd.from_pandas(xrho_n_vent_ini.reset_index().compute(), chunksize=1000), f"{out_dir}/xrho_n_vent_ini.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True)
     dd.to_parquet(dd.from_pandas(xrho_vol_vent_ini.reset_index().compute(), chunksize=1000), f"{out_dir}/xrho_vol_vent_ini.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True)
+
+    return
+
+def save_sig_vs_nd_vent(sig_vs_nd_n_vent, sig_vs_nd_vol_vent, out_dir, label="nolabel"):
+
+    dd.to_parquet(dd.from_pandas(sig_vs_nd_n_vent.reset_index().compute(), chunksize=1000), f"{out_dir}/sig_vs_nd_n_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True)
+    dd.to_parquet(dd.from_pandas(sig_vs_nd_vol_vent.reset_index().compute(), chunksize=1000), f"{out_dir}/sig_vs_nd_vol_vent.{label}.parquet", write_index=False, overwrite=True, write_metadata_file=True)
+    
+    return
+
+def save_subset_nd(zsurf_xmean, zsurf_ymean, vol_bin_xint_cube, vol_bin_yint_cube, out_dir, label="nolabel"):
+
+    zsurf_xmean.to_netcdf(f"{out_dir}/zsurf_xmean.{label}.nc")
+    zsurf_ymean.to_netcdf(f"{out_dir}/zsurf_ymean.{label}.nc")
+    vol_bin_xint_cube.to_netcdf(f"{out_dir}/vol_bin_xint.{label}.nc")
+    vol_bin_yint_cube.to_netcdf(f"{out_dir}/vol_bin_yint.{label}.nc")
+
+    return
+
+def write_reg_tim_rho_namelist(region, timewindow, rhowindow, filterby, tmin, tmax,
+                               imin, imax, jmin, jmax, sfmin, sfmax, rhomin,
+                               rhomax, bdepthmin, bdepthmax, out_dir):
+    
+    filename = f"namelist.Reg{region}.Time{timewindow}.Rho{rhowindow}.txt"
+
+    print(f" Region: {region} >>>>>>>>>")
+    print(f" timewindow: {timewindow}")
+    print(f" rhowindow:  {rhowindow}")
+    print(f" filterby: {filterby}")
+    print(f" tmin: {tmin}")
+    print(f" tmax: {tmax}")
+    print(f" imin: {imin}")
+    print(f" imax: {imax}")
+    print(f" jmin: {jmin}")
+    print(f" jmax: {jmax}")
+    print(f" sfmin: {sfmin} Sv")
+    print(f" sfmax: {sfmax} Sv")
+    print(f" bdepthmin: {bdepthmin} m")
+    print(f" bdepthmax: {bdepthmax} m")
+    print(f" rhomin: {rhomin} kg/m3")
+    print(f" rhomax: {rhomax} kg/m3")
+    print("")
+    print(f"Writing to namelist: {filename}")
+    print("")
+    
+    with open(out_dir + f"/{filename}", 'w') as f:
+
+        f.write(f" Region / Time / Rho specific settings >>>>>>>>>> \n")
+        f.write(f" Region: {region} \n")
+        f.write(f" timewindow: {timewindow} \n" )
+        f.write(f" rhowindow:  {rhowindow} \n" )
+        f.write(f" filterby: {filterby} \n")
+        f.write(f" tmin: {tmin} \n" )
+        f.write(f" tmax: {tmax} \n" )
+        f.write(f" imin: {imin} \n" )
+        f.write(f" imax: {imax} \n" )
+        f.write(f" jmin: {jmin} \n" )
+        f.write(f" jmax: {jmax} \n" )
+        f.write(f" sfmin: {sfmin} Sv \n")
+        f.write(f" sfmax: {sfmax} Sv \n" )
+        f.write(f" bdepthmin: {bdepthmin} m \n")
+        f.write(f" bdepthmax: {bdepthmax} m \n")
+        f.write(f" rhomin: {rhomin} kg/m3 \n" )
+        f.write(f" rhomax: {rhomax} kg/m3 \n" )
+        f.close()
 
     return
 
