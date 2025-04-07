@@ -374,7 +374,10 @@ def find_ndense_bin(df,zsurf,gdept_1d,e3w):
     y = df["binnedy_i"].astype(int)
     z = df["z_i"]
 
-    zsurf_col = zsurf[:,y-1,x-1].compute()
+    xpy = bin2pyind_x(x)
+    ypy = bin2pyind_y(y)
+
+    zsurf_col = zsurf[:,ypy,xpy].compute()
     
     #If no surfaces intersect column, set to -1 
     if zsurf_col.count() == 0: 
@@ -389,9 +392,9 @@ def find_ndense_bin(df,zsurf,gdept_1d,e3w):
     zfloor = int(np.floor(z))
 
     if zfloor > 0: 
-        depth = gdept_1d[zfloor-1] + e3w[zfloor,y-1,x-1] * (z-zfloor)
+        depth = gdept_1d[zfloor-1] + e3w[zfloor,ypy,xpy] * (z-zfloor)
     else:
-        depth = e3w[zfloor,y-1,x-1] * (z-zfloor)
+        depth = e3w[zfloor,ypy,xpy] * (z-zfloor)
 
     b = bins[zsurfs.searchsorted(depth)]
 
@@ -516,8 +519,12 @@ def bin_by_initial_sf_zint(df_vent, namelist):
     return df_vent
 
 def sf_function(df, sf_zint_cube=None):
-    x = int(df["binnedx_i"] - 1) 
-    y = int(df["binnedy_i"] - 1)
+    # x = int(df["binnedx_i"] - 1) 
+    # y = int(df["binnedy_i"] - 1)
+
+    x = bin2pyind_x(df["binnedx_i"])
+    y = bin2pyind_y(df["binnedy_i"])
+
     output = float(sf_zint_cube[y,x].values)
     return output
 
@@ -533,8 +540,11 @@ def bin_by_bathy_depth(df_vent, namelist):
     return df_vent
 
 def bathy_depth_function(df, depth_cube=None, xstr=None, ystr=None):
-    x = int(df[xstr] - 1) 
-    y = int(df[ystr] - 1) 
+    # x = int(df[xstr] - 1) 
+    # y = int(df[ystr] - 1) 
+
+    x = bin2pyind_x(df[xstr])
+    y = bin2pyind_y(df[ystr])
     output = float(depth_cube[y,x].values)
     return output
 
@@ -580,6 +590,22 @@ def subset_ij(M, imin, imax, jmin, jmax):
         output = output[...,:jmax, :imax]
 
     return output
+
+def bin2pyind_x( bin_ind ):
+    pyx = (bin_ind.astype(float) - 1).astype(int)
+    if pyx < 0: pyx = 0
+    return pyx
+
+def bin2pyind_y( bin_ind ):
+    pyy = (bin_ind.astype(float) - 1.5).astype(int)
+    if pyy < 0: pyy = 0
+    return pyy
+
+def bin2pyind_z( bin_ind ):
+    pyz = (bin_ind.astype(float) - 1.5).astype(int)
+    if pyz < 0: pyz = 0
+    return pyz
+
 
 
 
