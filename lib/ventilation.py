@@ -67,20 +67,24 @@ def bin_by_initial_pos(df_vent, namelist):
     zmin, zmax = namelist["kstmin"], namelist["kstmax"]
 
     xbins = np.linspace(xmin-0.5, xmax+0.5, num=xmax-xmin+2)
-    ybins = np.linspace(ymin-0.5, ymax+0.5, num=ymax-ymin+2)
-    zbins = np.linspace(zmin-0.5, zmax+0.5, num=zmax-zmin+2)
+    ybins = np.linspace(ymin, ymax, num=ymax-ymin+1)
+    zbins = np.linspace(zmin, zmax, num=zmax-zmin+1)
 
     xbins[0], xbins[-1] = -float("inf"), float("inf")
     ybins[0], ybins[-1] = -float("inf"), float("inf")
     zbins[0], zbins[-1] = -float("inf"), float("inf")
 
-    xcent = np.linspace(xmin, xmax, num=xmax-xmin+1, dtype=int)
-    ycent = np.linspace(ymin, ymax, num=ymax-ymin+1, dtype=int)
-    zcent = np.linspace(zmin, zmax, num=zmax-zmin+1, dtype=int)
+    xcent = np.linspace(xmin, xmax, num=xmax-xmin+1)+1
+    ycent = np.linspace(ymin+0.5, ymax-0.5, num=ymax-ymin)+1
+    zcent = np.linspace(zmin+0.5, zmax-0.5, num=zmax-zmin)+1
 
     df_vent["binnedx_i"] = df_vent["x_i"].map_partitions(pd.cut, xbins, labels=xcent, retbins=False).astype(int)
     df_vent["binnedy_i"] = df_vent["y_i"].map_partitions(pd.cut, ybins, labels=ycent, retbins=False).astype(int)
     df_vent["binnedz_i"] = df_vent["z_i"].map_partitions(pd.cut, zbins, labels=zcent, retbins=False).astype(int)
+
+    df_vent["binnedx_i"] = (df_vent["binnedx_i"]-1).astype(int)+1
+    df_vent["binnedy_i"] = (df_vent["binnedy_i"]-1.5).astype(int)+1
+    df_vent["binnedz_i"] = (df_vent["binnedz_i"]-1.5).astype(int)+1
 
     return df_vent
 
@@ -91,26 +95,29 @@ def bin_by_final_pos(df_vent, namelist):
     Bins are defined by the grid cell edges for easy comparison with model data
     """
 
-    xmin, xmax = namelist["imindom"], namelist["imaxdom"]
-    ymin, ymax = namelist["jmindom"], namelist["jmaxdom"]
-    zmin, zmax = namelist["kmindom"], namelist["kmaxdom"]
+    xmin, xmax = namelist["istmin"], namelist["istmax"]
+    ymin, ymax = namelist["jstmin"], namelist["jstmax"]
+    zmin, zmax = namelist["kstmin"], namelist["kstmax"]
 
     xbins = np.linspace(xmin-0.5, xmax+0.5, num=xmax-xmin+2)
-    ybins = np.linspace(ymin-0.5, ymax+0.5, num=ymax-ymin+2)
-    zbins = np.linspace(zmin-0.5, zmax+0.5, num=zmax-zmin+2)
+    ybins = np.linspace(ymin, ymax, num=ymax-ymin+1)
+    zbins = np.linspace(zmin, zmax, num=zmax-zmin+1)
 
     xbins[0], xbins[-1] = -float("inf"), float("inf")
     ybins[0], ybins[-1] = -float("inf"), float("inf")
     zbins[0], zbins[-1] = -float("inf"), float("inf")
 
-    xcent = np.linspace(xmin, xmax, num=xmax-xmin+1, dtype=int)
-    ycent = np.linspace(ymin, ymax, num=ymax-ymin+1, dtype=int)
-    zcent = np.linspace(zmin, zmax, num=zmax-zmin+1, dtype=int)
-
+    xcent = np.linspace(xmin, xmax, num=xmax-xmin+1)+1
+    ycent = np.linspace(ymin+0.5, ymax-0.5, num=ymax-ymin)+1
+    zcent = np.linspace(zmin+0.5, zmax-0.5, num=zmax-zmin)+1
 
     df_vent["binnedx_o"] = df_vent["x_o"].map_partitions(pd.cut, xbins, labels=xcent, retbins=False).astype(int)
     df_vent["binnedy_o"] = df_vent["y_o"].map_partitions(pd.cut, ybins, labels=ycent, retbins=False).astype(int)
     df_vent["binnedz_o"] = df_vent["z_o"].map_partitions(pd.cut, zbins, labels=zcent, retbins=False).astype(int)
+
+    df_vent["binnedx_o"] = (df_vent["binnedx_o"]-1).astype(int)+1
+    df_vent["binnedy_o"] = (df_vent["binnedy_o"]-1.5).astype(int)+1
+    df_vent["binnedz_o"] = (df_vent["binnedz_o"]-1.5).astype(int)+1
 
     return df_vent
 
@@ -519,9 +526,6 @@ def bin_by_initial_sf_zint(df_vent, namelist):
     return df_vent
 
 def sf_function(df, sf_zint_cube=None):
-    # x = int(df["binnedx_i"] - 1) 
-    # y = int(df["binnedy_i"] - 1)
-
     x = bin2pyind_x(df["binnedx_i"])
     y = bin2pyind_y(df["binnedy_i"])
 
@@ -540,9 +544,6 @@ def bin_by_bathy_depth(df_vent, namelist):
     return df_vent
 
 def bathy_depth_function(df, depth_cube=None, xstr=None, ystr=None):
-    # x = int(df[xstr] - 1) 
-    # y = int(df[ystr] - 1) 
-
     x = bin2pyind_x(df[xstr])
     y = bin2pyind_y(df[ystr])
     output = float(depth_cube[y,x].values)
@@ -592,17 +593,17 @@ def subset_ij(M, imin, imax, jmin, jmax):
     return output
 
 def bin2pyind_x( bin_ind ):
-    pyx = (bin_ind.astype(float) - 1).astype(int)
+    pyx = bin_ind - 1
     if pyx < 0: pyx = 0
     return pyx
 
 def bin2pyind_y( bin_ind ):
-    pyy = (bin_ind.astype(float) - 1.5).astype(int)
+    pyy = bin_ind - 1
     if pyy < 0: pyy = 0
     return pyy
 
 def bin2pyind_z( bin_ind ):
-    pyz = (bin_ind.astype(float) - 1.5).astype(int)
+    pyz = bin_ind - 1
     if pyz < 0: pyz = 0
     return pyz
 
