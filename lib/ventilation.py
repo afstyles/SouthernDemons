@@ -595,17 +595,17 @@ def subset_ij(M, imin, imax, jmin, jmax):
 def bin2pyind_x( bin_ind ):
     pyx = bin_ind - 1
     if pyx < 0: pyx = 0
-    return pyx
+    return pyx.astype(int)
 
 def bin2pyind_y( bin_ind ):
     pyy = bin_ind - 1
     if pyy < 0: pyy = 0
-    return pyy
+    return pyy.astype(int)
 
 def bin2pyind_z( bin_ind ):
     pyz = bin_ind - 1
     if pyz < 0: pyz = 0
-    return pyz
+    return pyz.astype(int)
 
 
 
